@@ -15,10 +15,14 @@ const NodeSchema = new Schema({
         type:String,
         requried: true,
     },
-    kind:{
+    type:{
         type:String,
         enum:['trigger', 'action', 'ai', 'condition'],
-        requried:true
+        require = true,
+    },
+    kind:{
+        type:String,
+        require:true
     },
     metadata:{
         name: String,
@@ -39,7 +43,7 @@ const NodeSchema = new Schema({
 const EdgeSchema = new Schema({
     edgeId:{
         type:String,
-        requried:true
+        require:true
     },
     source:{
         type:String,
