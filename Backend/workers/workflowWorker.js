@@ -6,6 +6,16 @@ const { getNextNodes } = require("../engine/planner")
 const mongoose = require("mongoose")
 require("dotenv").config()
 
+
+
+const path = require("path")
+require("dotenv").config({
+  path: path.join(__dirname, "../.env")
+});
+
+
+
+
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("mongo connected in worker"))
   .catch(err => console.log(err))
@@ -44,8 +54,16 @@ const worker = new Worker(
       const completedNodes = new Set()
       const allowedNodes = new Set(nodes.map(n => n.nodeId)) 
 
-   
-      let readyNodes = nodes.filter(n => n.kind === "trigger")
+
+              console.log(
+              "workflow nodes:",
+              workflow.nodes.map(n => ({
+                type: n.type,
+                kind: n.kind,
+                nodeId: n.nodeId
+              }))
+            )
+      let readyNodes = nodes.filter(n => n.type === "trigger")
 
       if (readyNodes.length === 0) {
         throw new Error("No trigger node found")
@@ -59,10 +77,10 @@ const worker = new Worker(
 
           readyNodes.map(async (node) => {
 
-            const executor = executors[node.kind]
+            const executor = executors[node.type]
 
             if (!executor) {
-              throw new Error(`Executor not found: ${node.kind}`)
+              throw new Error(`Executor not found: ${node.type}`)
             }
 
             const result = await executor(node, context)

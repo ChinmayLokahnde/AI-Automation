@@ -5,7 +5,7 @@ exports.createWorkflow = async (req, res) =>{
     try{
         const workflow = await Workflow.create({
             ...req.body,
-            userId: req.user.id
+            // userId: req.user.id
         })
         res.json(workflow)
     }catch(err){
@@ -24,7 +24,8 @@ exports.runWorkflow = async (req,res)=>{
 
         const execution = await startExecution(
             workflowId,
-            req.user.id
+            null
+            // req.user.id
         )
         res.json({
             message:"Execution started ",
@@ -52,9 +53,7 @@ exports.getWorkflows = async (req, res) => {
 
  try {
 
-  const workflows = await Workflow.find({
-   userId: req.user.id
-  })
+  const workflows = await Workflow.find()
 
   res.json(workflows)
 

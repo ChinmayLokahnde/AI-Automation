@@ -1,25 +1,32 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { ReactFlow, applyNodeChanges, applyEdgeChanges, addEdge, Background, Controls, MiniMap, useEdgesState } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import WebhookNode from '@/nodes/triggers/webhookNode';
 import HttpNode from '@/nodes/action/HttpNode';
 import IfNode from '@/nodes/conditions/IfNode';
+import EmailNode from "../nodes/action/EmailNode";
+import OpenAiNode from "../nodes/action/OpenAiNode";
+import ScheduleNode from "../nodes/triggers/ScheduleNode"
 import { Sidebar } from 'lucide-react';
 import { useReactFlow } from '@xyflow/react';
-import { data } from 'react-router-dom';
+import { data, useNavigate, useParams } from 'react-router-dom';
 import { AppSidebar } from './AppSidebar';
 import NodeConfig from './NodeConfig';
 import Topbar from './Topbar';
-import { mapNodeforBackend, mapEdgesforBackend } from '../lib/workflowMapper';
+import { mapNodeforBackend, mapEdgesforBackend, deserializeFlow} from '../lib/workflowMapper';
+import { createWorkflow, getWorkflow } from '../lib/workflowApi';
+
 
 
 const initialNodes = []
 
-const nodeTypes = {
+const nodeTypes = { 
   webhook: WebhookNode,
   http: HttpNode,
-  if: IfNode
-
+  if: IfNode,
+  email: EmailNode,
+  openAi: OpenAiNode,
+  schedule: ScheduleNode
 }
 
 const initialEdges = [];
@@ -29,6 +36,8 @@ export default function CreateFlow() {
   const [edges, setEdges] = useEdgesState(initialEdges);
   const [selectedNode, setSelectedNode] = useState(null)
   const [workflowName, setWorkflowName] = useState("");
+  const {id} = useParams()
+  const navigate = useNavigate()
  
   const onNodesChange = useCallback(
     (changes) => setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot)),
@@ -79,6 +88,7 @@ export default function CreateFlow() {
     event.dataTransfer.dropEffect = "move"
   }
   const onDrop = (event)=>{
+    
     event.preventDefault();;
 
     const data = event.dataTransfer.getData(
@@ -101,17 +111,100 @@ export default function CreateFlow() {
           position
         );
   };
-  const handleSave = ()=>{
-    const payload = {
+  const handleSave = async()=>{
+
+    if(!workflowName.trim){
+      alert("enter workflow name")
+      return
+    }
+
+    try{
+      const payload = {
       name: workflowName,
       nodes: mapNodeforBackend(nodes),
       edges: mapEdgesforBackend(edges, nodes)
-    };
+    }
     console.log(payload)
+
+    const token = localStorage.getItem("token")
+
+    const workflow = await createWorkflow(payload, token);
+
+    console.log("workflow saved", workflow);
+
+    navigate(`/workflow/${workflow._id}`);
+    
+    
+    }catch(err){
+      console.log(err)
+      err.message
+    }
+    
   }
-  const handleRun = ()=>{
-    console.log("run workflow")
+  const handleRun = async ()=>{
+    console.log("run clicked")
+    try{
+      if(!id){
+      console.log("no workflow id")
+      return
+      }
+      console.log("workflow id", id)
+    const response = await fetch(`http://localhost:5000/api/workflow/run/${id}`,
+      {
+        method: "POST"
+      }
+    );
+    const data = await response.json();
+
+    console.log("execution started", data)
+    }catch(err){
+      console.log(err)
+    }
+    
   }
+
+  useEffect(()=>{
+    if(!id) return;
+    const loadWorkflow = async()=>{
+      const workflow = await getWorkflow(id)
+
+
+      
+      const data = deserializeFlow(workflow);
+      
+
+      setNodes(data.nodes);
+      setEdges(data.edges);
+
+      setWorkflowName(workflow.name)
+    };
+    loadWorkflow();
+  },[id])
+
+
+  const updateNodeConfig = (nodeId, config) => {
+  setNodes((nds) =>
+    nds.map((node) =>
+      node.id === nodeId
+        ? {
+            ...node,
+            data: {
+              ...node.data,
+              config,
+            },
+          }
+        : node
+    )
+  );
+
+  setSelectedNode((prev) => ({
+    ...prev,
+    data: {
+      ...prev.data,
+      config,
+    },
+  }));
+};
  
   return (
     <div className='h-screen flex flex-col'>
@@ -147,7 +240,7 @@ export default function CreateFlow() {
         <Controls/>
       </ReactFlow>
       </div>
-      <NodeConfig node={selectedNode} />
+      <NodeConfig node={selectedNode} updateNodeConfig={updateNodeConfig}/>
       </div>
     </div>
   );

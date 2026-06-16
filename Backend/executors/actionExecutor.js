@@ -1,9 +1,28 @@
 module.exports = async (node, context) => {
 
- const inputNode = node.config?.inputNode
- const input = context[inputNode]
+switch(node.kind){
+    case "http":{
+        const config = node.config || {};
 
- console.log("Final output:", input)
+        const response = await fetch(
+            config.url,
+            {
+                method: config.method || "GET",
+                headers:{
+                    "Content-Type": "application/json"
+                },
+                body:
+                config.method !== "GET"
+                ? JSON.stringify(config.body || {})
+                : undefined
+            }
+        );
+        const data = await response.json();
+        return data
 
- return "action completed"
+    }
+
+    default:
+        return "action completed"
+}
 }

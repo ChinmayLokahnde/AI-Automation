@@ -4,11 +4,11 @@ const router = express.Router();
 const auth = require("../middleware/authMiddleware");
 const { createWorkflow, getWorkflows, runWorkflow, getWorkflow, getExecution } = require("../controllers/workflowController");
 
-router.post("/", auth, createWorkflow);
-router.post("/run/:id", auth, runWorkflow);
-router.get("/", auth, getWorkflows);
-router.get("/:id", auth, getWorkflow);
-router.get("/exeution/:id", auth, getExecution);
+router.post("/", createWorkflow);
+router.post("/run/:id", runWorkflow);
+router.get("/", getWorkflows);
+router.get("/:id", getWorkflow);
+router.get("/exeution/:id", getExecution);
 
 module.exports = router;
 

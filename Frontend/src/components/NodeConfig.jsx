@@ -1,41 +1,179 @@
 import { nodeRegistry } from "../lib/nodeRegistry";
 
 
-export default function NodeConfig({node}){
+export default function NodeConfig({node, updateNodeConfig}){
+  
   if (!node) {
     return (
-      <div className="w-80 border-l p-4 bg-white">
-        <p className="text-gray-500">
-          Select a node
-        </p>
+      <div className="w-80 border-l p-4">
+          Select node
       </div>
     );
   }
 
-  const config = nodeRegistry[node.data.kind];
+  const config = node.data.config || {};
+  
+  const updateField = (field, value) =>{
+    updateNodeConfig(node.id, {...config, [field]: value,})
+  }
 
   return (
     <div className="w-80 border-l p-4 bg-white">
+      <h2 className="font-bold text-lg mb-4">{node.data.label}</h2>
 
-      <h2 className="font-bold text-lg mb-4">
-        {node.data.label}
-      </h2>
+      {node.data.kind === 'http' && (
+        <>
+        <label className="block mb-2">URL</label>
+        <input className="border p-2 w-full mb-4" value={config.url || ""} onChange={(e) => updateField("url", e.target.value)} />
 
-      <div className="space-y-4">
-        {config?.fields?.map((field) => (
-          <div key={field.key}>
-            <label className="block mb-1">
-              {field.label}
-            </label>
+        <label className="block mb-2" >METHOD</label>
+        <select className="border p-2 w-full" value={config.method || "GET"} onChange={(e) => updateField("method", e.target.value)}>
+          <option>GET</option>
+          <option>POST</option>
+        </select>
+        </>
+      )}
 
-            <input
-              className="border rounded p-2 w-full"
-              placeholder={field.label}
-            />
-          </div>
-        ))}
-      </div>
+    {node.data.kind === "email" && (
+      <>
+        <label className="block mb-2">To</label>
+        <input
+          className="border p-2 w-full mb-4"
+          value={config.to || ""}
+          onChange={(e) =>
+            updateField("to", e.target.value)
+          }
+        />
 
+        <label className="block mb-2">Subject</label>
+        <input
+          className="border p-2 w-full mb-4"
+          value={config.subject || ""}
+          onChange={(e) =>
+            updateField("subject", e.target.value)
+          }
+        />
+
+        <label className="block mb-2">Body</label>
+        <textarea
+          className="border p-2 w-full"
+          rows={5}
+          value={config.body || ""}
+          onChange={(e) =>
+            updateField("body", e.target.value)
+          }
+        />
+      </>
+    )}
+
+    {node.data.kind === "openAi" && (
+      <>
+        <label className="block mb-2">
+          Prompt
+        </label>
+
+        <textarea
+          className="border p-2 w-full mb-4"
+          rows={5}
+          value={config.prompt || ""}
+          onChange={(e) =>
+            updateField("prompt", e.target.value)
+          }
+        />
+
+        <label className="block mb-2">
+          Model
+        </label>
+
+        <select
+          className="border p-2 w-full"
+          value={config.model || "gpt-4"}
+          onChange={(e) =>
+            updateField("model", e.target.value)
+          }
+        >
+          <option value="gpt-4">
+            GPT-4
+          </option>
+
+          <option value="gpt-3.5-turbo">
+            GPT-3.5
+          </option>
+        </select>
+      </>
+    )}
+
+    {node.data.kind === "if" && (
+      <>
+        <label className="block mb-2">
+          Field
+        </label>
+
+        <input
+          className="border p-2 w-full mb-4"
+          value={config.field || ""}
+          onChange={(e) =>
+            updateField("field", e.target.value)
+          }
+        />
+
+        <label className="block mb-2">
+          Operator
+        </label>
+
+        <select
+          className="border p-2 w-full mb-4"
+          value={config.operator || "equals"}
+          onChange={(e) =>
+            updateField(
+              "operator",
+              e.target.value
+            )
+          }
+        >
+          <option value="equals">
+            Equals
+          </option>
+
+          <option value="contains">
+            Contains
+          </option>
+
+          <option value="greaterThan">
+            Greater Than
+          </option>
+        </select>
+
+        <label className="block mb-2">
+          Value
+        </label>
+
+        <input
+          className="border p-2 w-full"
+          value={config.value || ""}
+          onChange={(e) =>
+            updateField("value", e.target.value)
+          }
+        />
+      </>
+    )}
+
+    {node.data.kind === "schedule" && (
+      <>
+        <label className="block mb-2">
+          Cron Expression
+        </label>
+
+        <input
+          className="border p-2 w-full"
+          placeholder="0 * * * *"
+          value={config.cron || ""}
+          onChange={(e) =>
+            updateField("cron", e.target.value)
+          }
+        />
+      </>
+    )}
     </div>
   )
 }
