@@ -2,11 +2,11 @@ const mongoose = require ("mongoose");
 const {Schema} = mongoose;
 
 const UserSchema = new Schema({
-    username : String,
-    password : String,
+    username:String,
+    password:String,
     email:{
         type:String,
-        unique: true
+        unique:true
     }
 })
 
@@ -63,7 +63,8 @@ const WorkflowSchema = new Schema({
     name:String,
     userId:{
         type: mongoose.Schema.Types.ObjectId,
-        ref:"User"
+        ref:"User",
+        required:true
     },
     nodes:[NodeSchema],
     edges:[EdgeSchema],
@@ -74,12 +75,12 @@ const ExecutionSchema = new Schema({
     workflowId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Workflow",
-        requried:true
+        required:true
     },
     userId:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"User",
-        requried:true
+        required:true
     },
 
     status:{

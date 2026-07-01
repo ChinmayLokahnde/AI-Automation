@@ -7,9 +7,8 @@ import IfNode from '@/nodes/conditions/IfNode';
 import EmailNode from "../nodes/action/EmailNode";
 import OpenAiNode from "../nodes/action/OpenAiNode";
 import ScheduleNode from "../nodes/triggers/ScheduleNode"
-import { Sidebar } from 'lucide-react';
 import { useReactFlow } from '@xyflow/react';
-import { data, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { AppSidebar } from './AppSidebar';
 import NodeConfig from './NodeConfig';
 import Topbar from './Topbar';
@@ -30,6 +29,8 @@ const nodeTypes = {
 }
 
 const initialEdges = [];
+
+
  
 export default function CreateFlow() {
   const [nodes, setNodes] = useState(initialNodes);
@@ -38,6 +39,15 @@ export default function CreateFlow() {
   const [workflowName, setWorkflowName] = useState("");
   const {id} = useParams()
   const navigate = useNavigate()
+
+
+ useEffect(() => {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    navigate("/login");
+  }
+}, [navigate]);
  
   const onNodesChange = useCallback(
     (changes) => setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot)),
@@ -140,7 +150,7 @@ export default function CreateFlow() {
   };
   const handleSave = async()=>{
 
-    if(!workflowName.trim){
+    if(!workflowName.trim()){
       alert("enter workflow name")
       return
     }
@@ -153,9 +163,9 @@ export default function CreateFlow() {
     }
     console.log(payload)
 
-    const token = localStorage.getItem("token")
+   
 
-    const workflow = await createWorkflow(payload, token);
+    const workflow = await createWorkflow(payload);
 
     console.log("workflow saved", workflow);
 
@@ -176,11 +186,17 @@ export default function CreateFlow() {
       return
       }
       console.log("workflow id", id)
-    const response = await fetch(`http://localhost:5000/api/workflow/run/${id}`,
-      {
-        method: "POST"
-      }
-    );
+    const token = localStorage.getItem("token");
+
+        const response = await fetch(
+          `http://localhost:5000/api/workflow/run/${id}`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
     const data = await response.json();
 
     console.log("execution started", data)

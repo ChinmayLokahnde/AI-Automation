@@ -1,14 +1,14 @@
 const express = require("express");
 const router = express.Router();
+const { createWorkflow, getWorkflows, runWorkflow, getWorkflow, getExecution,getExecutions } = require("../controllers/workflowController");
+const authMiddleware = require("../middleware/authMiddleware");
 
-const auth = require("../middleware/authMiddleware");
-const { createWorkflow, getWorkflows, runWorkflow, getWorkflow, getExecution } = require("../controllers/workflowController");
-
-router.post("/", createWorkflow);
-router.post("/run/:id", runWorkflow);
-router.get("/", getWorkflows);
-router.get("/:id", getWorkflow);
-router.get("/exeution/:id", getExecution);
+router.post("/",authMiddleware, createWorkflow);
+router.post("/run/:id", authMiddleware, runWorkflow);
+router.get("/",authMiddleware, getWorkflows);
+router.get("/executions",authMiddleware, getExecutions);
+router.get("/execution/:id",authMiddleware, getExecution);
+router.get("/:id",authMiddleware, getWorkflow);
 
 module.exports = router;
 

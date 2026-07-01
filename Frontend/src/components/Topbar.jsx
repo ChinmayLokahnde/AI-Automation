@@ -1,20 +1,51 @@
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import { useNavigate } from "react-router-dom";
 
 export default function Topbar ({
     workflowName,
     setWorkflowName,
     onSave,
-    onRun,
-}){
+    onRun,}){
+
+        const navigate = useNavigate();
+
+        const logout = () => {
+                localStorage.clear();
+                navigate("/login");
+            };
+
+
     return(
-         <div className="flex items-center justify-between border-b px-4 py-3 bg-white">
-            <Input value={workflowName} onChange={(e)=> setWorkflowName(e.target.value)} placeholder="Workflow Name" className="max-w-sm" />
-            <div>
-                <Button onClick ={onSave}> Save </Button>
-                <Button variant="secondary" onClick={onRun}>Run</Button>
-            </div>
-         </div>
+         <div className="flex justify-between items-center p-4 border-b">
+
+    <Input
+        className="w-96"
+        placeholder="Workflow name"
+        value={workflowName}
+        onChange={(e) => setWorkflowName(e.target.value)}
+    />
+
+    <div className="flex gap-3">
+
+        <Button onClick={onSave}>
+            Save
+        </Button>
+
+        <Button onClick={onRun}>
+            Run
+        </Button>
+
+        <Button
+            variant="destructive"
+            onClick={logout}
+        >
+            Logout
+        </Button>
+
+    </div>
+
+</div>
     )
 
 }

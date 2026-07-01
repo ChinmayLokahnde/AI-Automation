@@ -1,5 +1,17 @@
 module.exports = async (node, context) => {
 
+    switch (node.kind) {
 
- return node.config?.input || "default trigger data"
-}
+        case "webhook":
+            return context.webhook || {};
+
+        case "schedule":
+            return {
+                timestamp: new Date().toISOString()
+            };
+
+        default:
+            return {};
+    }
+
+};
