@@ -44,20 +44,47 @@ export default function CreateFlow() {
     [],
   );
   const onEdgesChange = useCallback(
-    (changes) => setEdges((edgesSnapshot) => applyEdgeChanges(changes, edgesSnapshot)),
-    [setEdges],
+  (changes) => {
+    setEdges((edgesSnapshot) =>
+      applyEdgeChanges(
+        changes,
+        edgesSnapshot
+      )
+    );
+  },
+  [setEdges]
+);
+
+  const onConnect = (params) => {
+
+  const sourceNode = nodes.find(
+    (n) => n.id === params.source
   );
 
-  const onConnect = (params)=>{
-    const sourceNode = nodes.find((n)=> n.id === params.source);
+  let condition = null;
 
-    let condition = null;
+  if (
+    sourceNode?.data?.kind === "if"
+  ) {
+    condition = params.sourceHandle;
+  }
 
-    if(sourceNode.data.kind == "if"){
-      condition = params.sourceHandle
-    };
-    setEdges((eds)=>[...eds, {...params, label:condition, condition}]);
+  const newEdge = {
+    id: crypto.randomUUID(),
+    ...params,
+    label: condition,
+    condition,
   };
+
+  setEdges((eds) => {
+
+    const next = [
+      ...eds,
+      newEdge
+    ];
+    return next;
+  });
+};
   const isValidConnection = (connection) =>{
     // const sourceNode = nodes.find((n)=> n.id === connection.source);
     const targetNode = nodes.find((n)=> n.id === connection.target);
@@ -219,6 +246,7 @@ export default function CreateFlow() {
         <AppSidebar/>
 
         <div className='flex-1 h-full'>
+          
       <ReactFlow
         nodes={nodes}
         edges={edges}

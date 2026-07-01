@@ -87,17 +87,21 @@ export default function NodeConfig({node, updateNodeConfig}){
 
         <select
           className="border p-2 w-full"
-          value={config.model || "gpt-4"}
+          value={config.model || "openai/gpt-oss-20b"}
           onChange={(e) =>
             updateField("model", e.target.value)
           }
         >
-          <option value="gpt-4">
-            GPT-4
+          <option value="openai/gpt-oss-20b">
+            GPT-OSS 20B (Groq)
           </option>
 
-          <option value="gpt-3.5-turbo">
-            GPT-3.5
+          <option value="llama-3.3-70b-versatile">
+            Llama 3.3 70B
+          </option>
+
+          <option value="gemini-2.5-flash-lite">
+            Gemini Flash Lite
           </option>
         </select>
       </>

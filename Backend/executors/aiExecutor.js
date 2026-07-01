@@ -1,7 +1,25 @@
 module.exports = async (node, context) => {
+    const {generate} = require("../services/aiService")
+    const interpolate = require("../utils/interpolate")
+    switch(node.kind){
+        
+        case "openAi":{
+        
+            const config = node.config || {}
 
- const inputNode = node.config?.inputNode
- const input = context[inputNode]
+            const prompt = interpolate(
+                config.prompt,
+                context
+            );
 
- return `AI processed: ${input}`
+            console.log("Ai prompt", config.prompt);
+
+            const response = await generate(prompt);
+            return{
+                text: response
+            }
+        }
+        default:
+            return null;
+    }
 }

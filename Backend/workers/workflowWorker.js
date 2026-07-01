@@ -92,6 +92,8 @@ const worker = new Worker(
         for (const { node, result } of results) {
 
           context[node.nodeId] = result
+          context[node.kind] = result
+          console.log(context)
           completedNodes.add(node.nodeId)
           if (node.kind === "condition") {
 
