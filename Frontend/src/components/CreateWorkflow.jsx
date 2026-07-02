@@ -210,16 +210,30 @@ export default function CreateFlow() {
     if(!id) return;
     const loadWorkflow = async()=>{
       const workflow = await getWorkflow(id)
-
-
       
       const data = deserializeFlow(workflow);
-      
 
-      setNodes(data.nodes);
-      setEdges(data.edges);
+          const webhookUrl =
+              `http://localhost:5000/api/webhook/${workflow._id}`;
 
-      setWorkflowName(workflow.name)
+          const updatedNodes = data.nodes.map((node) => {
+
+              if (node.data.kind === "webhook") {
+                  return {
+                      ...node,
+                      data: {
+                          ...node.data,
+                          webhookUrl,
+                      },
+                  };
+              }
+
+              return node;
+          });
+
+          setNodes(updatedNodes);
+          setEdges(data.edges);
+          setWorkflowName(workflow.name);
     };
     loadWorkflow();
   },[id])
@@ -274,8 +288,12 @@ export default function CreateFlow() {
         onDrop={onDrop}
         onDragOver={onDragOver}
         onNodeClick={(event, node) => {
-        setSelectedNode(node);
-           }}
+          const latestNode = nodes.find(
+              (n) => n.id === node.id
+          );
+
+          setSelectedNode(latestNode);
+      }}
 
         fitView
       >

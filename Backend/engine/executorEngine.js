@@ -7,6 +7,8 @@ const startExecution = async (
     triggerData = {}
 ) => {
 
+    console.log("Trigger Data:", triggerData);
+
     const workflow = await Workflow.findById(workflowId);
 
     if (!workflow) {
@@ -22,6 +24,7 @@ const startExecution = async (
             webhook: triggerData
         }
     });
+    console.log("Saved Context:", execution.context);
 
     await workflowQueue.add(
         "workflow-execution",

@@ -42,6 +42,7 @@ const worker = new Worker(
       await execution.save()
 
       const workflow = await Workflow.findById(execution.workflowId)
+      console.log("Execution Context:", execution.context);
 
       if (!workflow) {
         throw new Error("workflow not exists")

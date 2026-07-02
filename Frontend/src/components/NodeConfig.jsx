@@ -21,6 +21,42 @@ export default function NodeConfig({node, updateNodeConfig}){
     <div className="w-80 border-l p-4 bg-white">
       <h2 className="font-bold text-lg mb-4">{node.data.label}</h2>
 
+
+          {node.data.kind === "webhook" && (
+                    <>
+                <label className="block mb-2">Webhook URL</label>
+
+                <input
+                  readOnly
+                  value={node.data.webhookUrl || "Save workflow first"}
+                  className="border p-2 w-full mb-3 bg-gray-100"
+                />
+
+                <button
+                  className="bg-black text-white p-2 rounded w-full"
+                  onClick={() =>
+                    navigator.clipboard.writeText(node.data.webhookUrl)
+                  }
+                >
+                  Copy URL
+                </button>
+
+                <div className="mt-4">
+                  <p className="font-semibold mb-2">
+                    Example Payload
+                  </p>
+
+                  <pre className="bg-gray-100 p-3 rounded text-sm">
+            {`{
+              "name": "John",
+              "email": "john@gmail.com",
+              "company": "OpenAI"
+            }`}
+                  </pre>
+                </div>
+              </>
+            )}
+
       {node.data.kind === 'http' && (
         <>
         <label className="block mb-2">URL</label>

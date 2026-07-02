@@ -2,7 +2,12 @@ const { Workflow } = require("../db/schemas");
 const { startExecution } = require("../engine/executorEngine");
 
 exports.triggerWebhook = async (req, res) => {
+    ;
     try {
+
+        console.log("===== WEBHOOK HIT =====");
+        console.log("Body:", req.body);
+        console.log("Headers:", req.headers["content-type"]);
 
         const workflow = await Workflow.findById(
             req.params.workflowId
@@ -19,6 +24,8 @@ exports.triggerWebhook = async (req, res) => {
             workflow.userId,
             req.body
         );
+        console.log("Trigger Data:", triggerData);
+        console.trace("Called from");
 
         res.json({
             success: true,
