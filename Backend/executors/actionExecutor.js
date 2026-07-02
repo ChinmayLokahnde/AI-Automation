@@ -44,6 +44,12 @@ switch(node.kind){
     case "email": {
     const config = node.config || {};
 
+
+    const to = interpolate(
+        config.to,
+        context
+    )
+
     const subject = interpolate(
         config.subject,
         context
@@ -53,13 +59,22 @@ switch(node.kind){
         config.body,
         context
     );
+
+    console.log("Email Node Config:", config);
+
+    console.log("Interpolated:");
+    console.log({
+        to,
+        subject,
+        body,
+    });
     await sendMail({
-        to: config.to,
+        to,
         subject,
         body
     });
 
-    console.log("email sent", config.to);
+   console.log("Email sent to:", to);
 
     return {
         sent: true

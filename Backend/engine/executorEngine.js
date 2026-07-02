@@ -24,7 +24,8 @@ const startExecution = async (
             webhook: triggerData
         }
     });
-    console.log("Saved Context:", execution.context);
+    console.log("Created Execution ID:", execution._id);
+    console.log("Created Context:", execution.context);
 
     await workflowQueue.add(
         "workflow-execution",

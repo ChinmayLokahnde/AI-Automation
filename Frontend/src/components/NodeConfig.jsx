@@ -1,7 +1,10 @@
 import { nodeRegistry } from "../lib/nodeRegistry";
-
+import VariablePicker from "./VariablePicker";
+import { useState } from "react";
 
 export default function NodeConfig({node, updateNodeConfig}){
+  const [showPicker, setShowPicker] = useState(false);
+  const [activeField, setActiveField] = useState("");
   
   if (!node) {
     return (
@@ -16,6 +19,17 @@ export default function NodeConfig({node, updateNodeConfig}){
   const updateField = (field, value) =>{
     updateNodeConfig(node.id, {...config, [field]: value,})
   }
+
+  const insertVariable = (variable) => {
+  const value = config[activeField] || "";
+
+  updateField(
+    activeField,
+    value + variable
+  );
+
+  setShowPicker(false);
+};
 
   return (
     <div className="w-80 border-l p-4 bg-white">
@@ -57,65 +71,167 @@ export default function NodeConfig({node, updateNodeConfig}){
               </>
             )}
 
-      {node.data.kind === 'http' && (
-        <>
-        <label className="block mb-2">URL</label>
-        <input className="border p-2 w-full mb-4" value={config.url || ""} onChange={(e) => updateField("url", e.target.value)} />
+      {node.data.kind === "http" && (
+  <>
+    <label className="block mb-2">URL</label>
 
-        <label className="block mb-2" >METHOD</label>
-        <select className="border p-2 w-full" value={config.method || "GET"} onChange={(e) => updateField("method", e.target.value)}>
-          <option>GET</option>
-          <option>POST</option>
-        </select>
-        </>
-      )}
+    <div className="flex gap-2 mb-4">
+      <input
+        className="border p-2 flex-1"
+        value={config.url || ""}
+        onChange={(e) => updateField("url", e.target.value)}
+      />
+
+      <button
+        type="button"
+        className="border px-3 rounded hover:bg-gray-100"
+        onClick={() => {
+          setActiveField("url");
+          setShowPicker(true);
+        }}
+      >
+        +
+      </button>
+    </div>
+
+    <label className="block mb-2">Method</label>
+
+    <select
+      className="border p-2 w-full mb-4"
+      value={config.method || "GET"}
+      onChange={(e) => updateField("method", e.target.value)}
+    >
+      <option value="GET">GET</option>
+      <option value="POST">POST</option>
+      <option value="PUT">PUT</option>
+      <option value="PATCH">PATCH</option>
+      <option value="DELETE">DELETE</option>
+    </select>
+
+    {config.method !== "GET" && (
+      <>
+        <label className="block mb-2">Body</label>
+
+        <div className="flex gap-2">
+          <textarea
+            rows={6}
+            className="border p-2 flex-1"
+            value={config.body || ""}
+            onChange={(e) => updateField("body", e.target.value)}
+          />
+
+          <button
+            type="button"
+            className="border px-3 rounded h-10 hover:bg-gray-100"
+            onClick={() => {
+              setActiveField("body");
+              setShowPicker(true);
+            }}
+          >
+            +
+          </button>
+        </div>
+      </>
+    )}
+  </>
+)}
 
     {node.data.kind === "email" && (
       <>
         <label className="block mb-2">To</label>
-        <input
-          className="border p-2 w-full mb-4"
-          value={config.to || ""}
-          onChange={(e) =>
-            updateField("to", e.target.value)
-          }
-        />
+
+        <div className="flex gap-2 mb-4">
+
+          <input
+            className="border p-2 flex-1"
+            value={config.to || ""}
+            onChange={(e)=>updateField("to", e.target.value)}
+          />
+
+          <button
+            type="button"
+            className="border px-3 rounded hover:bg-gray-100"
+            onClick={()=>{
+              setActiveField("to");
+              setShowPicker(true);
+            }}
+          >
+            +
+          </button>
+
+        </div>
 
         <label className="block mb-2">Subject</label>
-        <input
-          className="border p-2 w-full mb-4"
-          value={config.subject || ""}
-          onChange={(e) =>
-            updateField("subject", e.target.value)
-          }
-        />
 
-        <label className="block mb-2">Body</label>
-        <textarea
-          className="border p-2 w-full"
-          rows={5}
-          value={config.body || ""}
-          onChange={(e) =>
-            updateField("body", e.target.value)
-          }
-        />
+              <div className="flex gap-2 mb-4">
+
+              <input
+                className="border p-2 flex-1"
+                value={config.subject || ""}
+                onChange={(e)=>updateField("subject",e.target.value)}
+              />
+
+              <button
+                type="button"
+                className="border px-3 rounded hover:bg-gray-100"
+                onClick={()=>{
+                    setActiveField("subject");
+                    setShowPicker(true);
+                }}
+              >
+              +
+              </button>
+            </div>
+
+        <div className="flex gap-2">
+
+          <textarea
+              className="border p-2 flex-1"
+              rows={5}
+              value={config.body || ""}
+              onChange={(e)=>updateField("body",e.target.value)}
+          />
+
+          <button
+          type="button"
+          className="border px-3 rounded h-10"
+          onClick={()=>{
+              setActiveField("body");
+              setShowPicker(true);
+          }}
+          >
+          +
+          </button>
+
+          </div>
       </>
     )}
 
     {node.data.kind === "openAi" && (
       <>
-        <label className="block mb-2">
-          Prompt
-        </label>
+        <label className="block mb-2">Prompt</label>
 
-        <textarea
-          className="border p-2 w-full mb-4"
-          rows={5}
-          value={config.prompt || ""}
-          onChange={(e) =>
-            updateField("prompt", e.target.value)
-          }
-        />
+          <div className="flex gap-2 mb-4">
+            <textarea
+              className="border p-2 flex-1"
+              rows={5}
+              value={config.prompt || ""}
+              onChange={(e) =>
+                updateField("prompt", e.target.value)
+              }
+            />
+
+            <button
+              type="button"
+              className="border px-3 rounded h-10 hover:bg-gray-100"
+              onClick={() => {
+                setActiveField("prompt");
+                setShowPicker(true);
+              }}
+            >
+              +
+            </button>
+          </div>
 
         <label className="block mb-2">
           Model
@@ -214,6 +330,11 @@ export default function NodeConfig({node, updateNodeConfig}){
         />
       </>
     )}
+          {showPicker && (
+            <VariablePicker
+              onSelect={insertVariable}
+            />
+          )}
     </div>
   )
 }

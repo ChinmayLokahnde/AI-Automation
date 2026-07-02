@@ -24,8 +24,7 @@ exports.triggerWebhook = async (req, res) => {
             workflow.userId,
             req.body
         );
-        console.log("Trigger Data:", triggerData);
-        console.trace("Called from");
+       console.log("Webhook Execution ID:", execution._id.toString());
 
         res.json({
             success: true,
