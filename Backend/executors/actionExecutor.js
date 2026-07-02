@@ -6,38 +6,101 @@ module.exports = async (node, context) => {
    
 
 switch(node.kind){
-    case "http":{
-        const config = node.config || {};
-        const method = (config.method || "GET").toUpperCase();
+    case "http": {
 
-        const options = {
-            method,
-            headers:{
-                "Content-Type": "application/json"
-            }
-        };
+    const config = node.config || {};
 
-        if(method !== "GET" && method !== "HEAD"){
-            options.body = JSON.stringify(
-                config.body || {}
-            );
-        }
+    
+    const url = interpolate(
+        config.url || "",
+        context
+    );
 
-        console.log("http config", config)
+    const method = (
+        config.method || "GET"
+    ).toUpperCase();
 
-        const response = await fetch(
-            config.url,
-            options
+  
+    const headers = {};
+
+    for (const header of (config.headers || [])) {
+
+        if (!header.key) continue;
+
+        headers[header.key] = interpolate(
+            header.value || "",
+            context
+        );
+    }
+
+    if (!headers["Content-Type"]) {
+        headers["Content-Type"] =
+            "application/json";
+    }
+
+    const options = {
+        method,
+        headers,
+    };
+
+    if (
+        method !== "GET" &&
+        method !== "HEAD" &&
+        config.body
+    ) {
+
+        const body = interpolate(
+            config.body,
+            context
         );
 
-        const data = await response.json();
-        console.log("http res", data)
-        return data
+        options.body = body;
+    }
+
+    console.log("HTTP Request");
+
+    console.log({
+        url,
+        method,
+        headers,
+        body: options.body
+    });
+
+    const response = await fetch(
+        url,
+        options
+    );
+
+    let data;
+
+    try {
+
+        data = await response.json();
+
+    } catch {
+
+        data = await response.text();
 
     }
 
-    default:
-        return "action completed"
+    console.log("HTTP Response");
+
+    console.log({
+        status: response.status,
+        data
+    });
+
+    return {
+
+        status: response.status,
+
+        headers: Object.fromEntries(
+            response.headers
+        ),
+
+        body: data
+    };
+}
 
 
     

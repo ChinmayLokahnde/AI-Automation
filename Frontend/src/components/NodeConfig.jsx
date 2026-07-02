@@ -71,13 +71,15 @@ export default function NodeConfig({node, updateNodeConfig}){
               </>
             )}
 
-      {node.data.kind === "http" && (
+    {node.data.kind === "http" && (
   <>
+
     <label className="block mb-2">URL</label>
 
     <div className="flex gap-2 mb-4">
       <input
         className="border p-2 flex-1"
+        placeholder="https://api.example.com"
         value={config.url || ""}
         onChange={(e) => updateField("url", e.target.value)}
       />
@@ -101,28 +103,81 @@ export default function NodeConfig({node, updateNodeConfig}){
       value={config.method || "GET"}
       onChange={(e) => updateField("method", e.target.value)}
     >
-      <option value="GET">GET</option>
-      <option value="POST">POST</option>
-      <option value="PUT">PUT</option>
-      <option value="PATCH">PATCH</option>
-      <option value="DELETE">DELETE</option>
+      <option>GET</option>
+      <option>POST</option>
+      <option>PUT</option>
+      <option>PATCH</option>
+      <option>DELETE</option>
     </select>
+
+    <label className="block mb-2 font-semibold">
+      Headers
+    </label>
+
+    {(config.headers || []).map((header, index) => (
+      <div
+        key={index}
+        className="flex gap-2 mb-2"
+      >
+        <input
+          className="border p-2 w-1/2"
+          placeholder="Key"
+          value={header.key}
+          onChange={(e) => {
+            const headers = [...(config.headers || [])];
+            headers[index].key = e.target.value;
+            updateField("headers", headers);
+          }}
+        />
+
+        <input
+          className="border p-2 w-1/2"
+          placeholder="Value"
+          value={header.value}
+          onChange={(e) => {
+            const headers = [...(config.headers || [])];
+            headers[index].value = e.target.value;
+            updateField("headers", headers);
+          }}
+        />
+      </div>
+    ))}
+
+    <button
+      className="border rounded px-3 py-1 mb-4 hover:bg-gray-100"
+      onClick={() => {
+        updateField("headers", [
+          ...(config.headers || []),
+          {
+            key: "",
+            value: "",
+          },
+        ]);
+      }}
+    >
+      + Add Header
+    </button>
 
     {config.method !== "GET" && (
       <>
-        <label className="block mb-2">Body</label>
+        <label className="block mb-2">
+          JSON Body
+        </label>
 
         <div className="flex gap-2">
           <textarea
-            rows={6}
             className="border p-2 flex-1"
+            rows={7}
+            placeholder='{"name":"{{webhook.name}}"}'
             value={config.body || ""}
-            onChange={(e) => updateField("body", e.target.value)}
+            onChange={(e) =>
+              updateField("body", e.target.value)
+            }
           />
 
           <button
             type="button"
-            className="border px-3 rounded h-10 hover:bg-gray-100"
+            className="border px-3 rounded h-10"
             onClick={() => {
               setActiveField("body");
               setShowPicker(true);
@@ -260,59 +315,72 @@ export default function NodeConfig({node, updateNodeConfig}){
     )}
 
     {node.data.kind === "if" && (
-      <>
-        <label className="block mb-2">
-          Field
-        </label>
+  <>
+    <label className="block mb-2">Field</label>
 
-        <input
-          className="border p-2 w-full mb-4"
-          value={config.field || ""}
-          onChange={(e) =>
-            updateField("field", e.target.value)
-          }
-        />
+    <div className="flex gap-2 mb-4">
 
-        <label className="block mb-2">
-          Operator
-        </label>
+      <input
+        className="border p-2 flex-1"
+        placeholder="{{webhook.amount}}"
+        value={config.field || ""}
+        onChange={(e) =>
+          updateField("field", e.target.value)
+        }
+      />
 
-        <select
-          className="border p-2 w-full mb-4"
-          value={config.operator || "equals"}
-          onChange={(e) =>
-            updateField(
-              "operator",
-              e.target.value
-            )
-          }
-        >
-          <option value="equals">
-            Equals
-          </option>
+      <button
+        type="button"
+        className="border px-3 rounded hover:bg-gray-100"
+        onClick={() => {
+          setActiveField("field");
+          setShowPicker(true);
+        }}
+      >
+        +
+      </button>
 
-          <option value="contains">
-            Contains
-          </option>
+    </div>
 
-          <option value="greaterThan">
-            Greater Than
-          </option>
-        </select>
+    <label className="block mb-2">
+      Operator
+    </label>
 
-        <label className="block mb-2">
-          Value
-        </label>
+    <select
+      className="border p-2 w-full mb-4"
+      value={config.operator || "=="}
+      onChange={(e) =>
+        updateField(
+          "operator",
+          e.target.value
+        )
+      }
+    >
+      <option value="==">Equals</option>
+      <option value="!=">Not Equals</option>
+      <option value=">">Greater Than</option>
+      <option value="<">Less Than</option>
+      <option value="contains">Contains</option>
+      <option value="startsWith">Starts With</option>
+      <option value="endsWith">Ends With</option>
+      <option value="exists">Exists</option>
+      <option value="empty">Is Empty</option>
+    </select>
 
-        <input
-          className="border p-2 w-full"
-          value={config.value || ""}
-          onChange={(e) =>
-            updateField("value", e.target.value)
-          }
-        />
-      </>
-    )}
+    <label className="block mb-2">
+      Compare Value
+    </label>
+
+    <input
+      className="border p-2 w-full"
+      placeholder="1000"
+      value={config.value || ""}
+      onChange={(e) =>
+        updateField("value", e.target.value)
+      }
+    />
+  </>
+)}
 
     {node.data.kind === "schedule" && (
       <>

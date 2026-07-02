@@ -66,6 +66,7 @@ export default function CreateFlow() {
 );
 
   const onConnect = (params) => {
+    console.log("CONNECT PARAMS", params);
 
   const sourceNode = nodes.find(
     (n) => n.id === params.source
@@ -85,13 +86,16 @@ export default function CreateFlow() {
     label: condition,
     condition,
   };
+  console.log("NEW EDGE", newEdge);
 
   setEdges((eds) => {
+     
 
     const next = [
       ...eds,
       newEdge
     ];
+    console.log("EDGES STATE", next);
     return next;
   });
 };
@@ -149,6 +153,7 @@ export default function CreateFlow() {
         );
   };
   const handleSave = async()=>{
+    console.log("CURRENT EDGES", edges);
 
     if(!workflowName.trim()){
       alert("enter workflow name")

@@ -97,7 +97,7 @@ const worker = new Worker(
           context[node.kind] = result
           console.log(context)
           completedNodes.add(node.nodeId)
-          if (node.kind === "condition") {
+          if (node.type === "condition") {
 
             const nextNodes = getNextNodes(node.nodeId, edges, result)
 

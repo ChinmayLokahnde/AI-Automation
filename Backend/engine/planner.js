@@ -27,7 +27,7 @@ const getReadyNodes = (nodes, edges, completeNodes)=>{
 
         if(parents.length == 0) return true
 
-        return parent.every(p =>completeNodes.has(p))
+        return parents.every(p => completeNodes.has(p));
     })
 }
 
